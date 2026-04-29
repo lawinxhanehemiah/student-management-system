@@ -10,7 +10,7 @@ class GradingSystemController extends Controller
 {
     public function index()
     {
-        $gradingSystems = GradingSystem::with('academicYear')->orderBy('min_score')->get();
+        $gradingSystems = GradingSystem::with('academicYear')->orderBy('name')->orderBy('program_category')->orderBy('min_score')->get();
         return view('superadmin.grading-systems.index', compact('gradingSystems'));
     }
 
@@ -24,6 +24,7 @@ class GradingSystemController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'program_category' => 'required|in:all,health,non_health',
             'min_score' => 'required|integer|min:0',
             'max_score' => 'required|integer|min:0|gte:min_score',
             'grade' => 'required|string|max:2',
@@ -49,6 +50,7 @@ class GradingSystemController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'program_category' => 'required|in:all,health,non_health',
             'min_score' => 'required|integer|min:0',
             'max_score' => 'required|integer|min:0|gte:min_score',
             'grade' => 'required|string|max:2',
@@ -70,13 +72,13 @@ class GradingSystemController extends Controller
             return back()->with('error', 'Cannot delete grading system that is used in results.');
         }
         $gradingSystem->delete();
-        return back()->with('success', 'Grading system deleted.');
+        return back()->with('success', 'Grading system deleted successfully.');
     }
 
     public function toggleActive(GradingSystem $gradingSystem)
     {
         $gradingSystem->is_active = !$gradingSystem->is_active;
         $gradingSystem->save();
-        return back()->with('success', 'Status updated.');
+        return back()->with('success', 'Status updated successfully.');
     }
 }

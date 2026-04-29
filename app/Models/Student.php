@@ -28,6 +28,7 @@ class Student extends Model
         'status',               // active, suspended, graduated, discontinued
         'guardian_name',
         'guardian_phone',
+        'nacte_reg_number',
         'created_at',
         'updated_at',
     ];

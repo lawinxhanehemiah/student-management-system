@@ -21,6 +21,7 @@
 <!-- Vendors CSS -->
 <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendors.min.css') }}" />
 <link rel="stylesheet" href="{{ asset('assets/vendors/css/daterangepicker.min.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
 <!-- Theme CSS -->
 <link rel="stylesheet" href="{{ asset('assets/css/theme.min.css') }}" />
@@ -462,33 +463,177 @@
             </li>
 
             <!-- EXAMINATIONS (updated with Results, Approvals, Integrity) -->
-            <li class="nxl-item nxl-hasmenu {{ request()->is('superadmin/exams*') || request()->routeIs('superadmin.results.*') || request()->routeIs('superadmin.approvals.*') || request()->routeIs('superadmin.integrity.*') ? 'active' : '' }}">
-                <a href="javascript:void(0);" class="nxl-link">
-                    <span class="nxl-micon"><i class="feather-edit"></i></span>
-                    <span class="nxl-mtext">Examinations</span>
-                    <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                </a>
-                <ul class="nxl-submenu">
-                    <li class="nxl-item"><a class="nxl-link" href="">Marks Entry</a></li>
-                    <!-- New results items -->
-                    <li class="nxl-item {{ request()->routeIs('superadmin.results.index') ? 'active' : '' }}">
-                        <a class="nxl-link" href="{{ route('superadmin.results.index') }}"><i class="feather-list"></i> Manage Results</a>
-                    </li>
-                    <li class="nxl-item {{ request()->routeIs('superadmin.results.import-ministry') ? 'active' : '' }}">
-                        <a class="nxl-link" href="{{ route('superadmin.results.import-ministry') }}"><i class="feather-upload"></i> Import Ministry Results</a>
-                    </li>
-                    <li class="nxl-item {{ request()->routeIs('superadmin.approvals.results') ? 'active' : '' }}">
-                        <a class="nxl-link" href="{{ route('superadmin.approvals.results') }}"><i class="feather-check-circle"></i> Result Approvals</a>
-                    </li>
-                    <li class="nxl-item {{ request()->routeIs('superadmin.integrity.dashboard') ? 'active' : '' }}">
-                        <a class="nxl-link" href="{{ route('superadmin.integrity.dashboard') }}"><i class="feather-shield"></i> Integrity Dashboard</a>
-                    </li>
-                    <li class="nxl-divider"></li>
-                    <li class="nxl-item"><a class="nxl-link" href="">Semester Results</a></li>
-                    <li class="nxl-item"><a class="nxl-link" href="">Generate Transcripts</a></li>
-                </ul>
-            </li>
-
+<li class="nxl-item nxl-hasmenu {{ request()->is('superadmin/exams*') || request()->routeIs('superadmin.results.*') || request()->routeIs('superadmin.approvals.*') || request()->routeIs('superadmin.integrity.*') ? 'active' : '' }}">
+    <a href="javascript:void(0);" class="nxl-link">
+        <span class="nxl-micon"><i class="feather-edit"></i></span>
+        <span class="nxl-mtext">Examinations</span>
+        <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+    </a>
+    <ul class="nxl-submenu">
+        
+        <!-- ===== DATA ENTRY ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-database"></i> Data Entry
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.results.create') }}">
+                        <i class="feather-edit-2"></i> Single Entry
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-upload"></i> Bulk Import (Excel)
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <!-- ===== RESULT MANAGEMENT ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-folder"></i> Result Management
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.results.index') }}">
+                        <i class="feather-list"></i> All Results
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.results.by-semester') }}">
+                        <i class="feather-calendar"></i> By Semester
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.results.by-programme') }}">
+                        <i class="feather-book"></i> By Programme
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <!-- ===== APPROVAL WORKFLOW ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-check-square"></i> Approval Workflow
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.approvals.results') }}">
+                        <i class="feather-clock"></i> Pending Approvals
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.approvals.history') }}">
+                        <i class="feather-history"></i> Approval History
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.publishing.index') }}">
+                        <i class="feather-globe"></i> Publish Results
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <!-- ===== QUALITY ASSURANCE ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-shield"></i> Quality Assurance
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.integrity.dashboard') }}">
+                        <i class="feather-alert-circle"></i> Integrity Dashboard
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-settings"></i> Validate Configuration
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-search"></i> Data Integrity Check
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <!-- ===== REPORTS & ANALYTICS ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-bar-chart-2"></i> Reports & Analytics
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-trending-up"></i> Results Statistics
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-pie-chart"></i> Grade Distribution
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="">
+                        <i class="feather-award"></i> Academic Performance
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <li class="nxl-divider"></li>
+        
+        <!-- ===== STUDENT SERVICES ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-users"></i> Student Services
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.transcripts.index') }}">
+                        <i class="feather-file-text"></i> Generate Transcripts
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.results.student-search') }}">
+                        <i class="feather-search"></i> Search Student Results
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <!-- ===== SYSTEM CONFIGURATION ===== -->
+        <li class="nxl-item nxl-hasmenu">
+            <a href="javascript:void(0);" class="nxl-link">
+                <i class="feather-settings"></i> Configuration
+                <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+            </a>
+            <ul class="nxl-submenu">
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.grading-systems.index') }}">
+                        <i class="feather-book-open"></i> Grading Systems
+                    </a>
+                </li>
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('superadmin.assessment-components.index') }}">
+                        <i class="feather-sliders"></i> Assessment Components
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</li>
             <!-- FINANCIALS (unchanged) -->
             <li class="nxl-item nxl-hasmenu {{ request()->is('superadmin/finance*') ? 'active' : '' }}">
                 <a href="javascript:void(0);" class="nxl-link">
@@ -951,7 +1096,7 @@
     });
 })(window.jQuery);
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <!-- Stack scripts from child views -->
 @stack('page-scripts')

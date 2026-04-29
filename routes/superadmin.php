@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SuperAdmin\ResultController;
 use App\Http\Controllers\SuperAdmin\Config\GeneralSettingsController;
 use App\Http\Controllers\SuperAdmin\Config\RolesController;
 use App\Http\Controllers\SuperAdmin\UserController;
@@ -443,40 +444,119 @@ Route::prefix('payment-adjustments')->name('payment-adjustments.')->group(functi
         Route::post('/copy-from-module', [\App\Http\Controllers\SuperAdmin\AssessmentComponentController::class, 'copyFromModule'])->name('copy-from-module');
     });
 
+ // Add this route inside the results group
+Route::prefix('results')->name('results.')->group(function () {
+    
+    // View Routes
+    Route::get('/', [ResultController::class, 'index'])->name('index');
+    Route::get('/create', [ResultController::class, 'create'])->name('create');
+    Route::get('/{id}/edit', [ResultController::class, 'edit'])->name('edit');
+    
+    // ADD THIS MISSING ROUTE
+    Route::get('/bulk-upload', [ResultController::class, 'showBulkUpload'])->name('bulk-upload.form');
+    Route::post('/bulk-upload', [ResultController::class, 'processBulkUpload'])->name('bulk-upload.process');
+    
+    // API Routes (AJAX)
+    Route::prefix('api')->name('api.')->group(function () {
+        // ... existing API routes ...
+        Route::get('/list', [ResultController::class, 'getList'])->name('list');
+        Route::get('/students/search', [ResultController::class, 'searchStudents'])->name('students.search');
+        Route::get('/student/by-reg-number', [ResultController::class, 'getStudentByRegNumber'])->name('student.by-reg-number');
+        Route::get('/modules/search', [ResultController::class, 'searchModules'])->name('modules.search');
+        Route::get('/modules/{moduleId}/weights', [ResultController::class, 'getModuleWeights'])->name('modules.weights');
+        Route::get('/calculate-score', [ResultController::class, 'calculateScore'])->name('calculate-score');
+        Route::get('/dashboard-stats', [ResultController::class, 'getDashboardStats'])->name('dashboard-stats');
+        Route::get('/programme/{programmeId}/levels', [ResultController::class, 'getProgrammeLevels'])->name('programme.levels');
+        Route::get('/transcript/{studentId}', [ResultController::class, 'getStudentTranscript'])->name('transcript');
+        Route::get('/gpa/{studentId}', [ResultController::class, 'getStudentGPA'])->name('gpa');
+        
+        // CRUD Operations
+        Route::post('/store', [ResultController::class, 'store'])->name('store');
+        Route::put('/{id}', [ResultController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ResultController::class, 'destroy'])->name('destroy');
+        // In routes/superadmin.php
+
+        // Bulk Operations
+        Route::post('/bulk-approve', [ResultController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/bulk-publish', [ResultController::class, 'bulkPublish'])->name('bulk-publish');
+        Route::delete('/bulk-delete', [ResultController::class, 'bulkDelete'])->name('bulk-delete');
+    });
+});
     // =====================
-    // RESULTS MANAGEMENT (ADMIN)
+    // RESULT BATCH MANAGEMENT
     // =====================
-    Route::prefix('results')->name('results.')->group(function () {
-
-     Route::get('/', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'index'])->name('index');
-    Route::post('/', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'store'])->name('store');
-    // Import Ministry
-    Route::get('/import-ministry', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'importMinistryForm'])->name('import-ministry.form');
-    Route::post('/import-ministry', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'importMinistry'])->name('import-ministry');
-        // Existing or enhanced
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'index'])->name('index');
-        Route::get('/{result}', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'show'])->name('show');
-        Route::delete('/{result}', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'destroy'])->name('destroy');
-
-        // Import Ministry Results
-        Route::get('/import-ministry', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'importMinistryForm'])->name('import-ministry.form');
-        Route::post('/import-ministry', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'importMinistry'])->name('import-ministry');
-
-        // Bulk operations
-        Route::post('/bulk-update', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'bulkUpdate'])->name('bulk-update');
-        Route::post('/bulk-delete', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'bulkDelete'])->name('bulk-delete');
-        Route::post('/bulk-approve', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'bulkApprove'])->name('bulk-approve');
-
-        // Integrity and Reports
-        Route::get('/integrity-report', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'integrityReport'])->name('integrity-report');
-        Route::post('/integrity-fix', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'integrityFix'])->name('integrity-fix');
-        Route::get('/missing-results', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'missingResults'])->name('missing-results');
-        Route::get('/stuck-workflows', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'stuckWorkflows'])->name('stuck-workflows');
-
-        // Export
-        Route::get('/export', [\App\Http\Controllers\SuperAdmin\ResultController::class, 'export'])->name('export');
+    Route::prefix('result-batches')->name('result-batches.')->group(function () {
+        
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'show'])->name('show');
+        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/approve', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'reject'])->name('reject');
+        
+        // API Routes
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/list', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'getList'])->name('list');
+            Route::get('/{id}/results', [\App\Http\Controllers\SuperAdmin\ResultBatchController::class, 'getBatchResults'])->name('results');
+        });
     });
 
+    // =====================
+    // RESULT PUBLISHING (Super Admin Only)
+    // =====================
+    Route::prefix('publishing')->name('publishing.')->group(function () {
+        
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'index'])->name('index');
+        Route::post('/publish-all', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'publishAll'])->name('publish-all');
+        Route::post('/publish-by-department', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'publishByDepartment'])->name('publish-by-department');
+        Route::post('/publish-by-programme', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'publishByProgramme'])->name('publish-by-programme');
+        Route::post('/unpublish/{id}', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'unpublish'])->name('unpublish');
+        
+        // Schedule Publishing
+        Route::post('/schedule', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'schedulePublishing'])->name('schedule');
+        Route::get('/scheduled', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'scheduledPublishing'])->name('scheduled');
+        Route::delete('/scheduled/{id}', [\App\Http\Controllers\SuperAdmin\ResultPublishingController::class, 'cancelScheduled'])->name('cancel-scheduled');
+    });
+
+    // =====================
+    // RESULT INTEGRITY ENGINE
+    // =====================
+    Route::prefix('integrity')->name('integrity.')->group(function () {
+        
+        Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'dashboard'])->name('dashboard');
+        Route::get('/run-checks', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'runChecks'])->name('run-checks');
+        Route::get('/anomalies', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'anomalies'])->name('anomalies');
+        Route::post('/repair/{anomalyId}', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'repair'])->name('repair');
+        Route::post('/bulk-repair', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'bulkRepair'])->name('bulk-repair');
+        Route::get('/logs', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'logs'])->name('logs');
+        
+        // API Routes
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/stats', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'getStats'])->name('stats');
+            Route::get('/check-grading', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'checkGrading'])->name('check-grading');
+            Route::get('/check-weights', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'checkWeights'])->name('check-weights');
+            Route::get('/check-duplicates', [\App\Http\Controllers\SuperAdmin\ResultIntegrityController::class, 'checkDuplicates'])->name('check-duplicates');
+        });
+    });
+
+    // =====================
+    // RESULT TEMPLATES MANAGEMENT
+    // =====================
+    Route::prefix('result-templates')->name('result-templates.')->group(function () {
+        
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/set-default', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'setDefault'])->name('set-default');
+        
+        // API Routes
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/list', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'getList'])->name('list');
+            Route::post('/preview', [\App\Http\Controllers\SuperAdmin\ResultTemplateController::class, 'preview'])->name('preview');
+        });
+    });
     // =====================
     // RESULT APPROVAL (Super Admin Override)
     // =====================
@@ -486,6 +566,30 @@ Route::prefix('payment-adjustments')->name('payment-adjustments.')->group(functi
         Route::post('/results/{result}/reject', [\App\Http\Controllers\SuperAdmin\ResultApprovalController::class, 'reject'])->name('results.reject');
         Route::post('/results/{result}/force-publish', [\App\Http\Controllers\SuperAdmin\ResultApprovalController::class, 'forcePublish'])->name('results.force-publish');
     });
+
+    Route::prefix('approvals')->name('approvals.')->group(function () {
+    Route::get('/results', [ResultApprovalController::class, 'index'])->name('results');
+    Route::get('/history', [ResultApprovalController::class, 'history'])->name('history');
+});
+
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/academic-performance', [ReportController::class, 'academicPerformance'])->name('academic-performance');
+});
+
+// TRANSCRIPTS
+// =====================
+Route::prefix('transcripts')->name('transcripts.')->group(function () {
+    Route::get('/', [TranscriptController::class, 'index'])->name('index');
+    Route::get('/generate/{studentId}', [TranscriptController::class, 'generate'])->name('generate');
+    Route::get('/download/{studentId}', [TranscriptController::class, 'download'])->name('download');
+});
+
+
+    // SEMESTER RESULTS
+// =====================
+Route::get('/results/by-semester', [ResultController::class, 'bySemester'])->name('results.by-semester');
+Route::get('/results/by-programme', [ResultController::class, 'byProgramme'])->name('results.by-programme');
+Route::get('/results/student-search', [ResultController::class, 'studentSearch'])->name('results.student-search');
 
     // =====================
     // RESULT INTEGRITY ENGINE (Admin Tools)
@@ -606,6 +710,8 @@ Route::prefix('payment-adjustments')->name('payment-adjustments.')->group(functi
         Route::post('/tools/email-test', [SuperAdminController::class, 'testEmailConnection'])->name('tools.email-test');
         Route::post('/tools/sms-test', [SuperAdminController::class, 'testSMSConnection'])->name('tools.sms-test');
     });
+    // In routes/superadmin.php
+Route::get('/results/transcript/{studentId}', [ResultController::class, 'transcriptView'])->name('results.transcript');
 
     // =====================
     // BULK OPERATIONS

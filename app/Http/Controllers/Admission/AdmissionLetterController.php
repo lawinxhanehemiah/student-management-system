@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
-class OfferController extends Controller
+class AdmissionLetterController extends Controller
 {
     /**
      * Display offer letters management page

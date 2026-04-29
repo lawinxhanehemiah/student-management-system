@@ -20,6 +20,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Program Category</th>
                                 <th>Min Score</th>
                                 <th>Max Score</th>
                                 <th>Grade</th>
@@ -33,10 +34,19 @@
                             @forelse($gradingSystems as $gs)
                             <tr>
                                 <td>{{ $gs->name }}</td>
+                                <td>
+                                    @if($gs->program_category == 'all')
+                                        <span class="badge bg-info">All Programs</span>
+                                    @elseif($gs->program_category == 'health')
+                                        <span class="badge bg-success">Health Only</span>
+                                    @else
+                                        <span class="badge bg-warning">Non-Health Only</span>
+                                    @endif
+                                </td>
                                 <td>{{ $gs->min_score }}</td>
                                 <td>{{ $gs->max_score }}</td>
                                 <td>{{ $gs->grade }}</td>
-                                <td>{{ number_format($gs->grade_point, 1) }}</td>
+                                <td>{{ number_format($gs->grade_point, 2) }}</td>
                                 <td>{{ $gs->academicYear ? $gs->academicYear->name : 'N/A' }}</td>
                                 <td>
                                     <span class="badge {{ $gs->is_active ? 'bg-success' : 'bg-danger' }}">
@@ -57,7 +67,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center">No grading systems found.</td>
+                                <td colspan="9" class="text-center">No grading systems found.</td>
                             </tr>
                             @endforelse
                         </tbody>

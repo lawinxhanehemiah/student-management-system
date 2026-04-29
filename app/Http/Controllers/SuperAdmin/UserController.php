@@ -194,6 +194,7 @@ class UserController extends Controller
     if ($role === 'Student') {
         $rules = array_merge($baseRules, [
             'intake'            => 'required|in:March,September',
+            'nacte_reg_number'  =>  'required|string|max:255',
             'programme_id'      => 'required|exists:programmes,id',
             'study_mode'        => 'required|in:full_time,part_time,distance',
             'guardian_name'     => 'required|string|max:255',
@@ -338,6 +339,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'application_id' => null,
                 'registration_number' => $user->registration_number,
+                'nacte_reg_number'  =>  $request->nacte_reg_number,
                 'programme_id' => $request->programme_id,
                 'study_mode' => $request->study_mode,
                 'intake' => $request->intake,
@@ -433,21 +435,21 @@ class UserController extends Controller
     $successMessage = "✓ User created successfully!\n\n";
 
     if ($userType === 'student') {
-        $successMessage .= "📋 REGISTRATION NUMBER: {$user->registration_number}\n";
-        $successMessage .= "🔑 PASSWORD: {$user->registration_number}\n";
-        $successMessage .= "⚠️ Student must change password on first login.";
+        $successMessage .= " REGISTRATION NUMBER: {$user->registration_number}\n";
+        $successMessage .= " PASSWORD: {$user->registration_number}\n";
+        $successMessage .= " Student must change password on first login.";
     } elseif ($userType === 'staff') {
-        $successMessage .= "📧 EMAIL: {$request->email}\n";
-        $successMessage .= "🔑 PASSWORD: {$request->email}\n";
-        $successMessage .= "⚠️ Staff must change password on first login.";
+        $successMessage .= " EMAIL: {$request->email}\n";
+        $successMessage .= " PASSWORD: {$request->email}\n";
+        $successMessage .= " Staff must change password on first login.";
 
         if ($role === 'Head_of_Department' && $request->department_id) {
             $dept = Department::find($request->department_id);
-            $successMessage .= "\n🏢 Department: " . ($dept->name ?? 'N/A');
+            $successMessage .= "\n Department: " . ($dept->name ?? 'N/A');
         }
     } else {
-        $successMessage .= "📧 EMAIL: {$request->email}\n";
-        $successMessage .= "🔑 PASSWORD: password123\n";
+        $successMessage .= " EMAIL: {$request->email}\n";
+        $successMessage .= " PASSWORD: password123\n";
     }
 
     return redirect()
